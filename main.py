@@ -15,6 +15,15 @@ from starlette.background import BackgroundTask
 app = FastAPI(title="TozMusic Downloader")
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    return {
+        "service": "tozmusic-downloader",
+        "status": "ok",
+        "health": "/health",
+    }
+
+
 class DownloadRequest(BaseModel):
     url: HttpUrl
 
