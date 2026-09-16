@@ -34,8 +34,23 @@ def write_cookie_file(folder: str) -> str | None:
                 "ou gere o Base64 novamente sem aspas."
             ) from None
 
+    try:
+        cookie_text = cookie_bytes.decode("utf-8")
+    except UnicodeDecodeError:
+        raise RuntimeError(
+            "Os cookies enviados sao binarios ou estao em formato incorreto. "
+            "Exporte um cookies.txt no formato Netscape, nao um arquivo de banco "
+            "do navegador."
+        ) from None
+
+    if "# Netscape HTTP Cookie File" not in cookie_text:
+        raise RuntimeError(
+            "O arquivo de cookies nao esta no formato Netscape. "
+            "Use uma extensao que exporte cookies.txt para o yt-dlp."
+        )
+
     with open(cookie_path, "wb") as cookie_file:
-        cookie_file.write(cookie_bytes)
+        cookie_file.write(cookie_text.encode("utf-8"))
     return cookie_path
 
 
