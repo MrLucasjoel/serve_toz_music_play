@@ -21,8 +21,17 @@ def write_cookie_file(folder: str) -> str | None:
         return None
 
     cookie_path = os.path.join(folder, "youtube-cookies.txt")
+    try:
+        encoded_cookies = "".join(encoded_cookies.split())
+        encoded_cookies += "=" * (-len(encoded_cookies) % 4)
+        cookie_bytes = base64.b64decode(encoded_cookies, validate=True)
+    except (ValueError, TypeError):
+        raise RuntimeError(
+            "YOUTUBE_COOKIES_B64 invalido. Gere o Base64 novamente sem aspas."
+        ) from None
+
     with open(cookie_path, "wb") as cookie_file:
-        cookie_file.write(base64.b64decode(encoded_cookies))
+        cookie_file.write(cookie_bytes)
     return cookie_path
 
 
