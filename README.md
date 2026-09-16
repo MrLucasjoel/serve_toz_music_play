@@ -31,6 +31,23 @@ flutter build apk --release --dart-define=TOZMUSIC_BACKEND_URL=https://tozmusic-
 
 Serviços gratuitos podem ficar adormecidos e demorar no primeiro download. Para uso contínuo, será necessário um plano que mantenha o serviço ativo.
 
+## Erro "Sign in to confirm you're not a bot"
+
+O YouTube pode bloquear o IP do Render. Nesse caso, exporte os cookies do YouTube no formato Netscape, salve o arquivo como `cookies.txt` e converta para Base64:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("cookies.txt")) | Set-Clipboard
+```
+
+No Render, abra **Environment > Add Environment Variable** e crie:
+
+```text
+Key: YOUTUBE_COOKIES_B64
+Value: cole o Base64 copiado
+```
+
+Nunca publique `cookies.txt` ou o valor dessa variavel no GitHub. Depois de salvar a variavel, faca um novo deploy.
+
 ## Gerar o APK
 
 Descubra o IPv4 do computador com `ipconfig`. Se o IP for `192.168.1.20`, gere assim:

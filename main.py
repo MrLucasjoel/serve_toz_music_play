@@ -15,6 +15,17 @@ from starlette.background import BackgroundTask
 app = FastAPI(title="TozMusic Downloader")
 
 
+def write_cookie_file(folder: str) -> str | None:
+    encoded_cookies = os.getenv("YOUTUBE_COOKIES_B64")
+    if not encoded_cookies:
+        return None
+
+    cookie_path = os.path.join(folder, "youtube-cookies.txt")
+    with open(cookie_path, "wb") as cookie_file:
+        cookie_file.write(base64.b64decode(encoded_cookies))
+    return cookie_path
+
+
 @app.get("/")
 def root() -> dict[str, str]:
     return {
@@ -34,12 +45,14 @@ def encode_header(value: str) -> str:
 
 def download_video(url: str) -> tuple[str, dict[str, str], str]:
     folder = tempfile.mkdtemp(prefix="tozmusic-")
+    cookie_file = write_cookie_file(folder)
     options = {
         "format": "bestaudio[ext=m4a]/bestaudio",
         "outtmpl": os.path.join(folder, "%(id)s.%(ext)s"),
         "noplaylist": True,
         "quiet": True,
         "no_warnings": True,
+        **({"cookiefile": cookie_file} if cookie_file else {}),
     }
 
     try:
