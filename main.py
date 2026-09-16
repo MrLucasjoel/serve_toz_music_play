@@ -16,19 +16,23 @@ app = FastAPI(title="TozMusic Downloader")
 
 
 def write_cookie_file(folder: str) -> str | None:
-    encoded_cookies = os.getenv("YOUTUBE_COOKIES_B64")
-    if not encoded_cookies:
+    cookie_value = os.getenv("YOUTUBE_COOKIES_B64")
+    if not cookie_value:
         return None
 
     cookie_path = os.path.join(folder, "youtube-cookies.txt")
-    try:
-        encoded_cookies = "".join(encoded_cookies.split())
-        encoded_cookies += "=" * (-len(encoded_cookies) % 4)
-        cookie_bytes = base64.b64decode(encoded_cookies, validate=True)
-    except (ValueError, TypeError):
-        raise RuntimeError(
-            "YOUTUBE_COOKIES_B64 invalido. Gere o Base64 novamente sem aspas."
-        ) from None
+    if "# Netscape HTTP Cookie File" in cookie_value:
+        cookie_bytes = cookie_value.encode("utf-8")
+    else:
+        try:
+            encoded_cookies = "".join(cookie_value.split())
+            encoded_cookies += "=" * (-len(encoded_cookies) % 4)
+            cookie_bytes = base64.b64decode(encoded_cookies, validate=True)
+        except (ValueError, TypeError):
+            raise RuntimeError(
+                "YOUTUBE_COOKIES_B64 invalido. Use um cookies.txt Netscape "
+                "ou gere o Base64 novamente sem aspas."
+            ) from None
 
     with open(cookie_path, "wb") as cookie_file:
         cookie_file.write(cookie_bytes)
