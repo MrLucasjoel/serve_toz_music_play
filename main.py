@@ -79,8 +79,13 @@ def download_video(url: str) -> tuple[str, dict[str, str], str]:
 
 
 @app.get("/health")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
+def health() -> dict[str, str | bool]:
+    return {
+        "status": "ok",
+        "youtube_cookies_configured": bool(
+            os.getenv("YOUTUBE_COOKIES_B64")
+        ),
+    }
 
 
 @app.post("/download")
